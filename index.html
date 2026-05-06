@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUMINA | Modern Medical Aesthetics La Jolla</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: #FDFCFB; color: #1A1A1A; overflow-x: hidden; }
+        .serif { font-family: 'Playfair Display', serif; }
+        .accent-color { color: #967E76; }
+        
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 1s cubic-bezier(0.39, 0.575, 0.565, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .nav-glass { 
+            background: rgba(253, 252, 251, 0.9); 
+            backdrop-filter: blur(12px); 
+            border-bottom: 1px solid rgba(0,0,0,0.03); 
+        }
+
+        #ai-chat-window { transform: translateY(20px); opacity: 0; pointer-events: none; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        #ai-chat-window.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        #chat-messages {
+    display: flex;
+    flex-direction: column;
+}
+
+        .hero-title { line-height: 1.1; }
+        
+        @media (max-width: 1024px) {
+            .hero-grid { grid-template-columns: 1fr; }
+            .hero-image { display: none; }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- STICKY MOBILE CTA -->
+    <div class="fixed bottom-0 left-0 w-full p-4 bg-white/95 backdrop-blur-md border-t border-gray-100 z-[90] flex md:hidden justify-between items-center shadow-2xl">
+        <p class="serif italic text-sm">Lumina Aesthetics</p>
+        <a href="#contact" class="bg-[#1A1A1A] text-white px-6 py-3 text-[10px] uppercase tracking-widest font-bold">Book Now</a>
+    </div>
+
+    <!-- AI CHATBOT INTERFACE (Sophie) -->
+    <div class="fixed bottom-24 right-6 z-[100] md:bottom-10">
+        <div id="ai-chat-window" class="absolute bottom-20 right-0 w-[320px] md:w-[350px] h-[450px] bg-white shadow-2xl rounded-2xl border border-gray-100 overflow-hidden flex flex-col">
+            <div class="bg-[#1A1A1A] p-6 text-white">
+                <p class="serif italic text-xl">Sophie</p>
+                <p class="text-[9px] uppercase tracking-widest opacity-60 font-bold">AI Concierge • Available 24/7</p>
+            </div>
+            <div id="chat-messages" class="flex-1 p-6 overflow-y-auto text-sm font-light space-y-4 bg-[#F9F7F2]/30">
+                <div class="bg-white p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm border border-gray-100">
+                    Hello! I'm Sophie. How can I assist with your personalized treatment journey today?
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-100 bg-white">
+                <input type="file" id="photo-input" accept="image/*" class="hidden">
+    
+    <!-- Botón de cámara -->
+    <button onclick="document.getElementById('photo-input').click()" class="opacity-30 hover:opacity-100 transition-opacity">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+    </button>
+
+    <input type="text" id="chat-input" placeholder="Type or upload a photo..." class="flex-1 text-xs font-light focus:outline-none py-2 bg-transparent">
+</div>
+        </div>
+        <button onclick="toggleChat()" class="bg-[#1A1A1A] hover:bg-[#967E76] text-white w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="flex justify-between items-center px-6 lg:px-12 py-6 sticky top-0 nav-glass z-50">
+        <div class="serif text-2xl tracking-[0.2em] font-semibold">LUMINA</div>
+        <div class="hidden md:flex space-x-12 text-[11px] uppercase tracking-[0.25em] font-semibold opacity-70">
+            <a href="#treatments" class="hover:text-[#967E76] transition-colors">Treatments</a>
+            <a href="#results" class="hover:text-[#967E76] transition-colors">Results</a>
+            <a href="#experts" class="hover:text-[#967E76] transition-colors">Experts</a>
+            <a href="#contact" class="hover:text-[#967E76] transition-colors">Contact</a>
+        </div>
+        <a href="#contact" class="hidden md:block bg-[#1A1A1A] text-white px-7 py-3 text-[10px] uppercase tracking-widest hover:bg-[#967E76] transition-all shadow-sm font-bold">Book Now</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative min-h-[85vh] grid lg:grid-cols-2 items-center gap-12 px-6 lg:px-20 py-20 overflow-hidden border-b border-gray-50">
+        <div class="max-w-2xl z-10 reveal active">
+            <span class="uppercase text-[10px] tracking-[0.5em] accent-color font-bold mb-8 block">San Diego's Premier Medical Spa</span>
+            <h1 class="serif text-6xl lg:text-8xl hero-title mb-10 font-light italic">
+                The Science of <br> <span class="not-italic text-[#1A1A1A]">Timeless Beauty.</span>
+            </h1>
+            <p class="text-base font-light leading-loose text-gray-500 mb-12 max-w-md">
+                Where medical-grade precision meets the serenity of La Jolla. Experience bespoke aesthetic protocols designed for your most radiant, natural self.
+            </p>
+            <div class="flex items-center space-x-10">
+                <a href="#treatments" class="text-[11px] uppercase tracking-widest border-b-2 border-[#1A1A1A] pb-2 hover:text-[#967E76] hover:border-[#967E76] transition-all font-bold">View Protocols</a>
+                <span class="text-[10px] uppercase tracking-[0.3em] text-gray-300 font-medium italic">Est. 2026</span>
+            </div>
+        </div>
+        
+        <div class="hero-image relative h-[600px] w-full reveal active" style="transition-delay: 0.3s;">
+            <img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=1000" 
+                 class="w-full h-full object-cover rounded-tl-[200px] rounded-br-[100px] shadow-2xl grayscale-[20%]" alt="Lumina Aesthetics">
+            <div class="absolute inset-0 border-[20px] border-[#FDFCFB]/10 rounded-tl-[200px] rounded-br-[100px]"></div>
+        </div>
+    </header>
+
+    <!-- SECTION: EXPERTS -->
+    <section id="experts" class="py-32 px-6 lg:px-20 bg-white">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+            <div class="reveal">
+                <h2 class="serif text-5xl mb-8 italic">World-Class <br> Expertise.</h2>
+                <p class="text-sm font-light leading-loose text-gray-500 mb-10 max-w-lg">
+                    Led by board-certified specialists, our clinical team combines surgical precision with a modern aesthetic eye. We believe in subtle enhancements that honor your unique anatomy.
+                </p>
+                <div class="space-y-8">
+                    <div class="border-l-2 border-[#967E76] pl-8 py-2">
+                        <p class="text-[11px] uppercase tracking-[0.3em] font-bold">Dr. Elena Sterling, MD</p>
+                        <p class="text-[9px] uppercase tracking-widest opacity-40 mt-1">Medical Director • Board Certified Surgeon</p>
+                    </div>
+                    <div class="border-l-2 border-gray-100 pl-8 py-2">
+                        <p class="text-[11px] uppercase tracking-[0.3em] font-bold">Sarah Vance, RN-C</p>
+                        <p class="text-[9px] uppercase tracking-widest opacity-40 mt-1">Lead Aesthetic Nurse Specialist</p>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6 reveal" style="transition-delay: 0.2s;">
+                <!-- FOTO 1 -->
+                <div class="aspect-[4/5] overflow-hidden rounded-sm grayscale shadow-xl">
+                    <img src="expert.png" class="w-full h-full object-cover" alt="Dr. Elena Sterling">
+                </div>
+                <!-- FOTO 2  -->
+                <div class="aspect-[4/5] overflow-hidden rounded-sm grayscale shadow-xl mt-12">
+                    <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=500" class="w-full h-full object-cover" alt="Lumina Clinical Space">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="py-24 bg-[#1A1A1A] text-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 lg:px-20 grid grid-cols-2 md:grid-cols-4 gap-12 reveal">
+            <div class="text-center">
+                <p class="text-4xl serif accent-color mb-2 italic">Top 1%</p>
+                <p class="text-[8px] uppercase tracking-[0.3em] opacity-40 font-bold leading-relaxed">Nationwide Provider</p>
+            </div>
+            <div class="text-center">
+                <p class="text-4xl serif accent-color mb-2 italic">Gold</p>
+                <p class="text-[8px] uppercase tracking-[0.3em] opacity-40 font-bold leading-relaxed">Standard Safety</p>
+            </div>
+            <div class="text-center">
+                <p class="text-4xl serif accent-color mb-2 italic">15yrs</p>
+                <p class="text-[8px] uppercase tracking-[0.3em] opacity-40 font-bold leading-relaxed">Clinical Experience</p>
+            </div>
+            <div class="text-center">
+                <p class="text-4xl serif accent-color mb-2 italic">Elite</p>
+                <p class="text-[8px] uppercase tracking-[0.3em] opacity-40 font-bold leading-relaxed">Medical Devices</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Treatments -->
+    <section id="treatments" class="py-32 px-6 lg:px-20 bg-[#F9F7F2]/30 border-y border-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-24 text-center reveal">
+                <h2 class="serif text-5xl mb-4 italic">Curated Protocols</h2>
+                <div class="w-12 h-px bg-[#967E76] mx-auto mb-6"></div>
+                <p class="text-[11px] uppercase tracking-[0.3em] text-[#967E76] font-bold">Evidence-based results for the discerning client</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-20">
+                <!-- Card 1 -->
+                <div class="group cursor-pointer reveal">
+                    <div class="overflow-hidden mb-10 aspect-[3/4] bg-white rounded-sm shadow-sm transition-all group-hover:shadow-xl">
+                        <img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80&w=500" class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105" alt="Glow Facial">
+                    </div>
+                    <h3 class="serif text-2xl mb-4 italic transition-colors group-hover:text-[#967E76]">The Signature Glow</h3>
+                    <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
+                        <p class="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Clinical Facial</p>
+                        <p class="text-[11px] font-semibold text-[#967E76]">$165 • 60M</p>
+                    </div>
+                    <p class="text-sm font-light leading-relaxed text-gray-500 opacity-80">Deep clinical cleansing combined with targeted LED therapy for an immediate luminous finish.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="group cursor-pointer reveal" style="transition-delay: 0.1s;">
+                    <div class="overflow-hidden mb-10 aspect-[3/4] bg-white rounded-sm shadow-sm transition-all group-hover:shadow-xl">
+                        <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=500" class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105" alt="Microneedling">
+                    </div>
+                    <h3 class="serif text-2xl mb-4 italic transition-colors group-hover:text-[#967E76]">Lumina Protocol</h3>
+                    <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
+                        <p class="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Microneedling + RF</p>
+                        <p class="text-[11px] font-semibold text-[#967E76]">$350 • 90M</p>
+                    </div>
+                    <p class="text-sm font-light leading-relaxed text-gray-500 opacity-80">Advanced collagen induction therapy infused with bespoke serum blends to stimulate deep repair.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="group cursor-pointer reveal" style="transition-delay: 0.2s;">
+                    <div class="overflow-hidden mb-10 aspect-[3/4] bg-white rounded-sm shadow-sm transition-all group-hover:shadow-xl">
+                        <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=500" class="w-full h-full object-cover transition duration-[1.5s] group-hover:scale-105" alt="Injectables">
+                    </div>
+                    <h3 class="serif text-2xl mb-4 italic transition-colors group-hover:text-[#967E76]">Elite Sculpt & Lift</h3>
+                    <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-3">
+                        <p class="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Precision Injectables</p>
+                        <p class="text-[11px] font-semibold text-[#967E76]">From $550</p>
+                    </div>
+                    <p class="text-sm font-light leading-relaxed text-gray-500 opacity-80">Expert contouring techniques to restore volume and define structure with a natural, refined look.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="py-32 px-6 lg:px-20 bg-white border-t border-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="mb-20 reveal">
+                <h2 class="serif text-4xl italic mb-2">What our clients say.</h2>
+                <div class="flex items-center space-x-2">
+                    <span class="text-[#967E76] text-sm">★★★★★</span>
+                    <p class="text-[9px] uppercase tracking-[0.3em] font-bold opacity-40">4.9 Google Rating • 150+ Reviews</p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 reveal" style="transition-delay: 0.1s;">
+                <div class="bg-[#FDFCFB] p-10 border border-gray-50 shadow-sm rounded-sm">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold">SJ</div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-widest">Sarah J.</p>
+                            <p class="text-[8px] uppercase tracking-widest opacity-40">Verified Patient • La Jolla</p>
+                        </div>
+                    </div>
+                    <p class="serif text-xl italic leading-relaxed">"Lumina transformed my skin and my confidence. The attention to detail in the protocols is unlike any other medspa in San Diego."</p>
+                </div>
+                <div class="bg-[#FDFCFB] p-10 border border-gray-50 shadow-sm rounded-sm">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-[10px] font-bold">MR</div>
+                        <div>
+                            <p class="text-[10px] font-bold uppercase tracking-widest">Michael R.</p>
+                            <p class="text-[8px] uppercase tracking-widest opacity-40">Verified Patient • Del Mar</p>
+                        </div>
+                    </div>
+                    <p class="serif text-xl italic leading-relaxed">"The results are subtle yet profound. Sophie, the AI concierge, made my entire booking experience completely seamless."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="py-32 px-6 lg:px-20 bg-[#F9F7F2]/50 border-t border-gray-50">
+        <div class="text-center mb-24 reveal">
+            <h2 class="serif text-5xl mb-6 italic text-[#967E76]">Clinical Results.</h2>
+            <p class="text-[10px] uppercase tracking-[0.5em] text-gray-400 font-bold">Actual transformations from our La Jolla studio</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 max-w-5xl mx-auto">
+            <div class="reveal">
+                <div class="aspect-square bg-gray-200 overflow-hidden relative rounded-sm shadow-2xl">
+                    <img src="image.png" class="w-full h-full object-cover grayscale-[10%]" alt="Result 1">
+                    <div class="absolute top-6 right-6 bg-[#1A1A1A] text-white px-4 py-2 text-[8px] uppercase tracking-[0.3em] font-bold">Peri-Orbital</div>
+                </div>
+            </div>
+            <div class="reveal" style="transition-delay: 0.2s;">
+                <div class="aspect-square bg-gray-200 overflow-hidden relative rounded-sm shadow-2xl">
+                    <img src="image_2.png" class="w-full h-full object-cover grayscale-[10%]" alt="Result 2">
+                    <div class="absolute top-6 right-6 bg-[#1A1A1A] text-white px-4 py-2 text-[8px] uppercase tracking-[0.3em] font-bold">Jawline</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT (FORMULARIO) -->
+    <section id="contact" class="py-32 px-6 lg:px-20 bg-[#FDFCFB]">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
+            <div class="reveal">
+                <h2 class="serif text-7xl mb-12 italic leading-[1.1]">Begin Your <br> <span class="not-italic accent-color">Transformation.</span></h2>
+                <p class="text-sm font-light text-gray-400 mb-12 max-w-xs leading-loose italic">Schedule your private consultation. Our AI Concierge is available 24/7 to assist with your inquiry.</p>
+            </div>
+            
+            <form action="https://formspree.io/f/TU_ID_AQUI" method="POST" class="bg-white p-10 lg:p-16 shadow-2xl rounded-sm border border-gray-50 reveal" style="transition-delay: 0.2s;">
+                <div class="space-y-8">
+                    <div>
+                        <label class="text-[8px] uppercase tracking-[0.3em] font-bold opacity-30">Full Name</label>
+                        <input type="text" name="name" required class="w-full border-b border-gray-100 py-4 text-[10px] tracking-widest font-bold focus:outline-none focus:border-[#967E76] transition-colors bg-transparent uppercase">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <label class="text-[8px] uppercase tracking-[0.3em] font-bold opacity-30">Email Address</label>
+                            <input type="email" name="email" required class="w-full border-b border-gray-100 py-4 text-[10px] tracking-widest font-bold focus:outline-none focus:border-[#967E76] transition-colors bg-transparent uppercase">
+                        </div>
+                        <div>
+                            <label class="text-[8px] uppercase tracking-[0.3em] font-bold opacity-30">Phone Number</label>
+                            <input type="tel" name="phone" required class="w-full border-b border-gray-100 py-4 text-[10px] tracking-widest font-bold focus:outline-none focus:border-[#967E76] transition-colors bg-transparent uppercase">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[8px] uppercase tracking-[0.3em] font-bold opacity-30">Treatment of Interest</label>
+                        <select name="treatment" class="w-full border-b border-gray-100 py-4 text-[10px] tracking-widest font-bold focus:outline-none focus:border-[#967E76] transition-colors bg-transparent uppercase cursor-pointer">
+                            <option value="none" disabled selected>Select Protocol</option>
+                            <option value="facial">Signature Glow Facial</option>
+                            <option value="microneedling">Lumina Protocol</option>
+                            <option value="injectables">Elite Sculpt & Lift</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-[#1A1A1A] text-white py-6 text-[10px] uppercase tracking-[0.5em] hover:bg-[#967E76] transition-all font-bold shadow-xl">Request Appointment</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#1A1A1A] text-white pt-32 pb-12 px-6 lg:px-20">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-16 mb-32">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="serif text-3xl tracking-[0.2em] font-semibold mb-8">LUMINA</div>
+                    <p class="text-[10px] leading-loose opacity-30 uppercase tracking-[0.3em] font-medium max-w-xs">
+                        1230 Prospect St, La Jolla, CA 92037 <br>
+                        contact@lumina-aesthetics.com <br>
+                        +1 (858) 555-0123
+                    </p>
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.4em] font-bold accent-color mb-8">Clinic Hours</p>
+                    <ul class="text-[10px] uppercase tracking-[0.2em] opacity-30 space-y-4 font-bold">
+                        <li>Mon - Fri: 9am - 7pm</li>
+                        <li>Sat: 10am - 4pm</li>
+                        <li>Sun: Closed</li>
+                    </ul>
+                </div>
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.4em] font-bold accent-color mb-8">Connect</p>
+                    <ul class="text-[10px] uppercase tracking-[0.2em] opacity-30 space-y-4 font-bold">
+                        <li><a href="#" class="hover:text-white transition-colors">Instagram</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">TikTok</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-12 border-t border-white/5 opacity-20 text-[9px] uppercase tracking-[0.5em] font-bold italic flex justify-between">
+                <p>&copy; 2026 LUMINA MEDICAL AESTHETICS • LA JOLLA</p>
+                <p>Modern Medical Excellence</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    // --- 1. LÓGICA DE INTERFAZ  ---
+    function toggleChat() {
+        const chat = document.getElementById('ai-chat-window');
+        chat.classList.toggle('open');
+    }
+
+    function reveal() {
+        var reveals = document.querySelectorAll(".reveal");
+        for (var i = 0; i < reveals.length; i++) {
+            var windowHeight = window.innerHeight;
+            var elementTop = reveals[i].getBoundingClientRect().top;
+            var elementVisible = 100;
+            if (elementTop < windowHeight - elementVisible) {
+                reveals[i].classList.add("active");
+            }
+        }
+    }
+    window.addEventListener("scroll", reveal);
+    reveal();
+
+    // --- 2. FUNCIÓN AUXILIAR PARA EL CARGADOR ---
+    function createLoader() {
+        const typingId = "typing-" + Date.now();
+        const typingDiv = document.createElement('div');
+        typingDiv.id = typingId;
+        typingDiv.className = "text-[9px] uppercase tracking-[0.2em] opacity-40 font-bold p-2 mb-4";
+        typingDiv.textContent = "Sophie is composing...";
+        document.getElementById('chat-messages').appendChild(typingDiv);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+        return typingDiv;
+    }
+
+    // --- 3. LÓGICA DE SOPHIE (Flask + Multimodal + Auto-Scroll) ---
+    async function askSophie() {
+        const inputField = document.getElementById('chat-input');
+        const photoInput = document.getElementById('photo-input');
+        const mensaje = inputField.value.trim();
+        let imageBase64 = null;
+
+        if (!mensaje && !photoInput.files[0]) return;
+
+        // Si hay una imagen, la convertimos a Base64 para Gemini 2.5
+        if (photoInput.files[0]) {
+            const file = photoInput.files[0];
+            imageBase64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+            appendMessage("Shared a skin photo for analysis.", true);
+        } else {
+            appendMessage(mensaje, true);
+        }
+
+        inputField.value = "";
+        photoInput.value = ""; 
+
+        const loader = createLoader(); 
+
+        try {
+            const response = await fetch('http://127.0.0.1:5000/api/sophie', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    mensaje: mensaje || "Analyze this photo.",
+                    imagen: imageBase64 
+                })
+            });
+
+            const data = await response.json();
+            loader.remove();
+            appendMessage(data.respuesta, false);
+
+            // Lógica de Validación: Scroll automático 
+            if (data.scroll_to_contact) {
+                setTimeout(() => {
+                    const contactSection = document.getElementById('contact');
+                    contactSection.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Efecto visual: resaltamos el formulario brevemente
+                    const form = contactSection.querySelector('form');
+                    form.classList.add('ring-2', 'ring-[#967E76]', 'transition-all');
+                    setTimeout(() => form.classList.remove('ring-2', 'ring-[#967E76]'), 3000);
+                }, 1500);
+            }
+
+        } catch (error) {
+            if(loader) loader.remove();
+            appendMessage("Technical delay. Please call us at (858) 555-0123.", false);
+            console.error("Error:", error);
+        }
+    }
+
+    // --- 4. FUNCIÓN PARA DIBUJAR BURBUJAS ---
+    function appendMessage(text, isUser) {
+        const chatMessages = document.getElementById('chat-messages');
+        const wrapper = document.createElement('div');
+        wrapper.className = isUser ? "flex justify-end w-full" : "flex justify-start w-full";
+        
+        const msg = document.createElement('div');
+        msg.className = isUser 
+            ? "bg-[#1A1A1A] text-white p-4 rounded-tl-xl rounded-bl-xl rounded-br-xl shadow-sm text-xs max-w-[85%] mb-4" 
+            : "bg-white p-4 rounded-tr-xl rounded-br-xl rounded-bl-xl shadow-sm border border-gray-100 text-xs max-w-[85%] mb-4 font-light leading-relaxed";
+        
+        msg.textContent = text;
+        wrapper.appendChild(msg);
+        chatMessages.appendChild(wrapper);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // --- 5. DETECTAR TECLA ENTER ---
+    document.getElementById('chat-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') askSophie();
+    });
+</script>
+</body>
+
+</html>
